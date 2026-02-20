@@ -1,0 +1,475 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@200;300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+@layer base {
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: auto;
+    /* Handled by lenis now */
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
+
+  body {
+    /*
+     * Warm parchment base — drawn from bistro's palette of natural light,
+     * warm stone floors and white walls seen in ambiance references.
+     * A faint SVG grain adds the tactile "linen" feel without being visible.
+     */
+    background-color: #F7F3EE;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+    background-size: 360px 360px;
+    color: #2E2B28;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    cursor: none;
+    /* More generous line-height — matches the "breathability" of the space */
+    line-height: 1.8;
+    letter-spacing: 0.01em;
+  }
+
+  @media (pointer: coarse) {
+    body {
+      cursor: auto;
+    }
+  }
+
+  a,
+  button {
+    cursor: none;
+  }
+
+  @media (pointer: coarse) {
+
+    a,
+    button {
+      cursor: pointer;
+    }
+  }
+
+  /* Hide scrollbars completely while keeping scroll functionality */
+  html,
+  body {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  ::selection {
+    background: rgba(200, 169, 106, 0.18);
+    color: #2E2B28;
+  }
+
+  /* ─── Typography ─────────────────────────────────────────────────────── */
+  /*
+   * Headings: Playfair Display at a relaxed weight — elegant but never heavy.
+   * Following the open, airy quality of the restaurant's natural aesthetic.
+   */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+    /* lighter than 600 — more airy */
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: #2E2B28;
+  }
+
+  h2 {
+    font-weight: 500;
+  }
+
+  h3 {
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  p {
+    font-weight: 300;
+    line-height: 1.85;
+    /* generous — matches open, unhurried bistro feel */
+    color: #706860;
+    letter-spacing: 0.01em;
+  }
+
+  /* Links */
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+/* ─── Components ─────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* ── Layout ── */
+  .section-padding {
+    @apply px-5 md:px-16 lg:px-28;
+  }
+
+  /* Extra breathing room — matches the open-plan feel of the bistro */
+  .section-block {
+    @apply py-24 md:py-36 lg:py-48;
+  }
+
+  /* ── Gold text ── */
+  .gold-text {
+    background: linear-gradient(135deg, #BF9D5A 0%, #D4AC6E 50%, #BF9D5A 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Shimmer — slowed to 6s for more elegance, less distraction */
+  .gold-shimmer {
+    background: linear-gradient(90deg,
+        #9E7A32 0%, #C8A96A 18%, #D4B87A 36%,
+        #E8D4A8 50%, #D4B87A 64%, #C8A96A 82%, #9E7A32 100%);
+    background-size: 260% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 6s linear infinite;
+  }
+
+  /* ── Dividers ── */
+  .gold-divider {
+    flex-shrink: 0;
+    width: 36px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200, 169, 106, 0.5), transparent);
+  }
+
+  .gold-divider-full {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200, 169, 106, 0.18) 30%, rgba(200, 169, 106, 0.18) 70%, transparent);
+  }
+
+  /* Warm separator line — used between content rows */
+  .warm-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #E5DED3 25%, #E5DED3 75%, transparent);
+  }
+
+  /* ── Glass / card surfaces ── */
+  /*
+   * Never pure white — always a warm, slightly off-white that matches
+   * the restaurant's white-and-natural-material aesthetic.
+   */
+  .glass-card {
+    background: rgba(250, 247, 243, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(224, 216, 204, 0.75);
+    /* Very soft shadow — natural, not dramatic */
+    box-shadow:
+      0 1px 3px rgba(46, 43, 40, 0.03),
+      0 4px 16px rgba(46, 43, 40, 0.05);
+  }
+
+  .glass-nav {
+    background: rgba(248, 245, 240, 0.97);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-bottom: 1px solid rgba(224, 216, 204, 0.55);
+    box-shadow: 0 1px 8px rgba(46, 43, 40, 0.04);
+  }
+
+  /* ── Section backgrounds with warm paper texture ── */
+  .section-cream {
+    background-color: #F7F3EE;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.026'/%3E%3C/svg%3E");
+    background-size: 360px 360px;
+  }
+
+  /* Slightly deeper warm — used for alternating sections */
+  .section-cream-alt {
+    background-color: #EEE8DF;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.024'/%3E%3C/svg%3E");
+    background-size: 360px 360px;
+  }
+
+  /* ── Eyebrow / label text ── */
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.5em;
+    /* generous spacing — airy, editorial */
+    text-transform: uppercase;
+    color: #C8A96A;
+  }
+
+  /* ── Buttons ── */
+  /*
+   * Minimal, outline-first — consistent with the clean glass-and-white
+   * architecture in the ambiance images.
+   */
+  .btn-gold {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    padding: 1rem 2.75rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #C8A96A;
+    background: transparent;
+    border: 1px solid rgba(200, 169, 106, 0.42);
+    /* Slow, gentle transition — matches calm bistro mood */
+    transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .btn-gold::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #C8A96A, #D4B87A);
+    transform: translateX(-101%);
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 0;
+  }
+
+  .btn-gold span,
+  .btn-gold>* {
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-gold:hover {
+    color: #F7F3EE;
+    border-color: #D4B87A;
+  }
+
+  .btn-gold:hover::before {
+    transform: translateX(0);
+  }
+
+  .btn-gold-filled {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    padding: 1rem 2.75rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #F7F3EE;
+    background: linear-gradient(135deg, #C8A96A 0%, #D4B87A 100%);
+    border: 1px solid transparent;
+    transition: box-shadow 0.6s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .btn-gold-filled:hover {
+    box-shadow: 0 0 32px rgba(200, 169, 106, 0.22), 0 6px 24px rgba(200, 169, 106, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .btn-gold-filled>* {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Animated underline */
+  .link-underline {
+    position: relative;
+    display: inline-block;
+  }
+
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #C8A96A;
+    /* Slow, smooth — unhurried */
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .link-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Very gentle glow — not dramatic */
+  .glow-gold {
+    box-shadow: 0 0 0 rgba(200, 169, 106, 0);
+    transition: box-shadow 0.6s ease;
+  }
+
+  .glow-gold:hover {
+    box-shadow: 0 0 28px rgba(200, 169, 106, 0.16);
+  }
+
+  /* Focus ring */
+  .focus-gold:focus-visible {
+    outline: 1px solid rgba(200, 169, 106, 0.45);
+    outline-offset: 4px;
+  }
+
+  /* Performance hints */
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-opacity {
+    will-change: opacity;
+  }
+
+  /* 3D perspective for hover effects */
+  .perspective-800 {
+    perspective: 800px;
+  }
+
+  .perspective-1200 {
+    perspective: 1200px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Tracking utilities */
+  .tracking-luxury {
+    letter-spacing: 0.28em;
+  }
+
+  .tracking-ultra {
+    letter-spacing: 0.5em;
+  }
+
+  /* Responsive Display text */
+  .text-display-lg {
+    font-size: clamp(3.5rem, 8vw, 6.5rem);
+  }
+
+  .text-display-md {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .text-display-sm {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+}
+
+/* ─── Global keyframes ───────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -260% center;
+  }
+
+  100% {
+    background-position: 260% center;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes breathe {
+
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.65;
+    transform: scale(1.06);
+  }
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
