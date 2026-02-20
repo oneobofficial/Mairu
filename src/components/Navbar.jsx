@@ -19,20 +19,27 @@ export default function Navbar({ onChatClick }) {
         window.addEventListener('scroll', onScroll, { passive: true });
 
         // Detect if footer is in view to hide navbar
-        const footer = document.querySelector('#footer');
         let observer;
-        if (footer) {
-            // Un-hide the navbar slightly before the footer is fully out of view
-            // Hide the navbar as soon as the footer enters the viewport
-            observer = new IntersectionObserver(([entry]) => {
-                setFooterInView(entry.isIntersecting);
-            }, { threshold: 0.05 });
-            observer.observe(footer);
-        }
+        let footerElement;
+
+        const checkFooter = () => {
+            footerElement = document.querySelector('#footer');
+            if (footerElement && !observer) {
+                observer = new IntersectionObserver(([entry]) => {
+                    setFooterInView(entry.isIntersecting);
+                }, { threshold: 0.05 });
+                observer.observe(footerElement);
+            } else if (!footerElement) {
+                // If footer is not found yet, keep checking (useful passing loading screens)
+                setTimeout(checkFooter, 500);
+            }
+        };
+
+        checkFooter();
 
         return () => {
             window.removeEventListener('scroll', onScroll);
-            if (observer && footer) observer.unobserve(footer);
+            if (observer && footerElement) observer.unobserve(footerElement);
         };
     }, []);
 
@@ -47,8 +54,8 @@ export default function Navbar({ onChatClick }) {
             <motion.nav
                 initial={{ y: -100, opacity: 0 }}
                 animate={{ y: footerInView ? -100 : 0, opacity: footerInView ? 0 : 1 }}
-                transition={{ duration: footerInView ? 0.6 : 1, delay: footerInView ? 0 : 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? 'glass-nav py-4' : 'py-7'
+                transition={{ duration: footerInView ? 0.6 : 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className={`fixed top-0 left-0 right-0 z-[100] transition-colors duration-700 ${scrolled ? 'glass-nav py-4' : 'py-7'
                     }`}
                 style={{ pointerEvents: footerInView ? 'none' : 'auto' }}
             >
