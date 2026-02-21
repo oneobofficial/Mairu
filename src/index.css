@@ -81,6 +81,8 @@
     a,
     button {
       cursor: pointer;
+      /* Eliminate 300ms tap delay on iOS Safari */
+      touch-action: manipulation;
     }
   }
 
@@ -272,6 +274,7 @@
     /* Slow, gentle transition — matches calm bistro mood */
     transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1),
       border-color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    touch-action: manipulation;
   }
 
   .btn-gold::before {
@@ -386,6 +389,13 @@
 
   .will-change-opacity {
     will-change: opacity;
+  }
+
+  /* Free GPU on mobile — hover transforms are irrelevant on touch devices */
+  @media (hover: none) {
+    .will-change-transform {
+      will-change: auto;
+    }
   }
 
   /* 3D perspective for hover effects */

@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
+// Evaluate once at module scope — safe, never changes after page load.
+// This must happen BEFORE the component function so the hook call order is
+// always the same (React Rules of Hooks).
+const IS_TOUCH =
+    typeof window !== 'undefined' &&
+    ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
 export default function CustomCursor() {
     const cursorX = useMotionValue(-100);
     const cursorY = useMotionValue(-100);
@@ -13,6 +20,9 @@ export default function CustomCursor() {
     const y = useSpring(cursorY, springConfig);
 
     useEffect(() => {
+        // Don't attach any listeners on touch devices — skip silently
+        if (IS_TOUCH) return;
+
         const moveCursor = (e) => {
             cursorX.set(e.clientX);
             cursorY.set(e.clientY);
@@ -30,11 +40,7 @@ export default function CustomCursor() {
             }
         };
 
-        const handleHoverEnd = () => {
-            setHovered(false);
-        };
-
-        // Hide cursor when leaving window
+        const handleHoverEnd = () => setHovered(false);
         const handleLeave = () => setHidden(true);
         const handleEnter = () => setHidden(false);
 
@@ -53,17 +59,17 @@ export default function CustomCursor() {
         };
     }, [cursorX, cursorY]);
 
-    // Hide on touch devices
-    if (typeof navigator !== 'undefined' && typeof window !== 'undefined') {
-        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        if (isTouch) return null;
-    }
+    // Don't render the cursor element on touch devices
+    if (IS_TOUCH) return null;
 
     return (
         <>
             <style>{`
-            body, a, button { cursor: none !important; }
-        `}</style>
+                body, a, button { cursor: none !important; }
+                @media (pointer: coarse) {
+                    body, a, button { cursor: auto !important; }
+                }
+            `}</style>
             <motion.div
                 className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
                 style={{
@@ -72,15 +78,17 @@ export default function CustomCursor() {
                     translateX: '-50%',
                     translateY: '-50%',
                     opacity: hidden ? 0 : 1,
+                    willChange: 'transform',
                 }}
             >
+                {/* Use scale instead of width/height — entirely GPU-accelerated, no layout reflow */}
                 <motion.div
                     animate={{
-                        width: hovered ? 48 : 12,
-                        height: hovered ? 48 : 12,
+                        scale: hovered ? 4 : 1,
                         backgroundColor: '#fff',
                     }}
                     transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ width: 12, height: 12, willChange: 'transform' }}
                     className="rounded-full"
                 />
             </motion.div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 
 const navLinks = [
@@ -14,34 +14,42 @@ export default function Navbar({ onChatClick }) {
     const [footerInView, setFooterInView] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
 
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 80);
-        window.addEventListener('scroll', onScroll, { passive: true });
+    // Highly performant GPU-driven scroll tracking
+    const { scrollY, scrollYProgress } = useScroll();
 
-        // Detect if footer is in view to hide navbar
-        let observer;
-        let footerElement;
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        // Toggle glass nav state
+        setScrolled(latest > 80);
+    });
 
-        const checkFooter = () => {
-            footerElement = document.querySelector('#footer');
-            if (footerElement && !observer) {
-                observer = new IntersectionObserver(([entry]) => {
-                    setFooterInView(entry.isIntersecting);
-                }, { threshold: 0.05 });
-                observer.observe(footerElement);
-            } else if (!footerElement) {
-                // If footer is not found yet, keep checking (useful passing loading screens)
-                setTimeout(checkFooter, 500);
+    const handleScroll = (e, href) => {
+        e.preventDefault();
+        const targetId = href.replace(/.*\#/, '');
+        const elem = document.getElementById(targetId);
+
+        if (elem) {
+            const offset = 80; // approximate navbar height padding
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = elem.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            const executeScroll = () => {
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            };
+
+            // If mobile menu is open, wait for it to visually close before scrolling
+            if (menuOpen) {
+                setMenuOpen(false);
+                setTimeout(executeScroll, 700);
+            } else {
+                executeScroll();
             }
-        };
-
-        checkFooter();
-
-        return () => {
-            window.removeEventListener('scroll', onScroll);
-            if (observer && footerElement) observer.unobserve(footerElement);
-        };
-    }, []);
+        }
+    };
 
     // Lock body scroll when mobile menu open
     useEffect(() => {
@@ -49,15 +57,18 @@ export default function Navbar({ onChatClick }) {
         return () => { document.body.style.overflow = ''; };
     }, [menuOpen]);
 
+    // Transforms for performant transitions
+    const navY = useTransform(() => footerInView ? -100 : 0);
+    const navOpacity = useTransform(() => footerInView ? 0 : 1);
+
     return (
         <>
             <motion.nav
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: footerInView ? -100 : 0, opacity: footerInView ? 0 : 1 }}
-                transition={{ duration: footerInView ? 0.6 : 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                style={{ y: navY, opacity: navOpacity, pointerEvents: footerInView ? 'none' : 'auto' }}
+                initial={{ y: 0, opacity: 1 }} // Start visible to avoid load-time pop-in
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 className={`fixed top-0 left-0 right-0 z-[100] transition-colors duration-700 ${scrolled ? 'glass-nav py-4' : 'py-7'
                     }`}
-                style={{ pointerEvents: footerInView ? 'none' : 'auto' }}
             >
                 <div className="section-padding flex items-center justify-between">
 
@@ -82,6 +93,7 @@ export default function Navbar({ onChatClick }) {
                             <motion.a
                                 key={link.label}
                                 href={link.href}
+                                onClick={(e) => handleScroll(e, link.href)}
                                 initial={{ opacity: 0, y: -8 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -102,7 +114,7 @@ export default function Navbar({ onChatClick }) {
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.7, duration: 0.6 }}
                         >
-                            <a href="#reservation" className="btn-gold">
+                            <a href="#reservation" className="btn-gold" onClick={(e) => handleScroll(e, '#reservation')}>
                                 Reserve
                             </a>
                         </motion.div>
@@ -127,21 +139,26 @@ export default function Navbar({ onChatClick }) {
                         className="md:hidden relative w-8 h-8 flex flex-col justify-center gap-1.5 group"
                         onClick={() => setMenuOpen(!menuOpen)}
                         aria-label="Toggle menu"
+                        style={{ touchAction: 'manipulation' }}
                     >
+                        {/* Line color: white on dark hero, dark when glass-nav is active */}
                         <motion.span
                             animate={menuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
                             transition={{ duration: 0.35, ease: [0.76, 0, 0.24, 1] }}
-                            className="block h-px bg-[#2B2B2B] origin-center"
+                            className="block h-px origin-center transition-colors duration-500"
+                            style={{ backgroundColor: scrolled ? '#2B2B2B' : '#F5F1EB' }}
                         />
                         <motion.span
                             animate={menuOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
                             transition={{ duration: 0.25 }}
-                            className="block h-px bg-[#2B2B2B]"
+                            className="block h-px transition-colors duration-500"
+                            style={{ backgroundColor: scrolled ? '#2B2B2B' : '#F5F1EB' }}
                         />
                         <motion.span
                             animate={menuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
                             transition={{ duration: 0.35, ease: [0.76, 0, 0.24, 1] }}
-                            className="block h-px bg-[#2B2B2B] origin-center"
+                            className="block h-px origin-center transition-colors duration-500"
+                            style={{ backgroundColor: scrolled ? '#2B2B2B' : '#F5F1EB' }}
                         />
                     </button>
                 </div>
@@ -169,7 +186,7 @@ export default function Navbar({ onChatClick }) {
                                 <motion.a
                                     key={link.label}
                                     href={link.href}
-                                    onClick={() => setMenuOpen(false)}
+                                    onClick={(e) => handleScroll(e, link.href)}
                                     initial={{ opacity: 0, y: 24 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -180,7 +197,7 @@ export default function Navbar({ onChatClick }) {
                             ))}
                             <motion.a
                                 href="#reservation"
-                                onClick={() => setMenuOpen(false)}
+                                onClick={(e) => handleScroll(e, '#reservation')}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.55, duration: 0.5 }}

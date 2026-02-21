@@ -188,18 +188,32 @@ function FloatingImage({ src, visible }) {
     const springX = useSpring(cursorX, { stiffness: 65, damping: 22 });
     const springY = useSpring(cursorY, { stiffness: 65, damping: 22 });
 
-    // Subtle tilt on X-axis based on cursor position (very gentle)
-    const rotateY = useTransform(springX, [0, window.innerWidth], [-4, 4]);
-    const rotateX = useTransform(springY, [0, window.innerHeight], [2, -2]);
+    // Safe window-size tracking — read only inside effect, not at render time
+    const winW = useMotionValue(typeof window !== 'undefined' ? window.innerWidth : 1440);
+    const winH = useMotionValue(typeof window !== 'undefined' ? window.innerHeight : 900);
+
+    // Subtle tilt using relative 0–1 position, never reading window at render
+    const relativeX = useTransform(springX, (v) => v / winW.get());
+    const relativeY = useTransform(springY, (v) => v / winH.get());
+    const rotateY = useTransform(relativeX, [0, 1], [-4, 4]);
+    const rotateX = useTransform(relativeY, [0, 1], [2, -2]);
 
     useEffect(() => {
+        const handleResize = () => {
+            winW.set(window.innerWidth);
+            winH.set(window.innerHeight);
+        };
         const move = (e) => {
             cursorX.set(e.clientX);
             cursorY.set(e.clientY);
         };
         window.addEventListener('mousemove', move);
-        return () => window.removeEventListener('mousemove', move);
-    }, [cursorX, cursorY]);
+        window.addEventListener('resize', handleResize, { passive: true });
+        return () => {
+            window.removeEventListener('mousemove', move);
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [cursorX, cursorY, winW, winH]);
 
     return (
         <AnimatePresence>
@@ -314,7 +328,7 @@ function MobilePreview({ src, name, onClose }) {
                             </p>
                             <button
                                 onClick={onClose}
-                                style={{ background: 'none', border: 'none', color: '#9A8E84', fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', cursor: 'pointer' }}
+                                style={{ background: 'none', border: 'none', color: '#9A8E84', fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', cursor: 'pointer', touchAction: 'manipulation' }}
                             >
                                 Close
                             </button>
@@ -578,7 +592,7 @@ export default function Menu() {
                                 key={cat.id}
                                 onClick={() => setActive(cat.id)}
                                 className="relative flex-shrink-0 px-6 py-4 group"
-                                style={{ cursor: 'none', background: 'none', border: 'none' }}
+                                style={{ cursor: 'pointer', background: 'none', border: 'none', touchAction: 'manipulation' }}
                             >
                                 <span
                                     className="eyebrow transition-colors duration-600"

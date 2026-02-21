@@ -47,8 +47,8 @@ export default function App() {
               animate="visible"
               className="min-h-screen text-warm-white"
             >
-              {/* Main content wrapper with solid bg and higher z-index to cover the footer */}
-              <div className="relative z-10 bg-[#0A0908]">
+              {/* Main content wrapper — bg covers the sticky footer reveal beneath it */}
+              <div className="relative bg-[#F7F3EE]">
                 <Navbar onChatClick={() => setIsChatOpen(true)} />
                 <main>
                   <Hero />

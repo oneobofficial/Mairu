@@ -66,42 +66,6 @@ function ScrollCue() {
     );
 }
 
-/* ─── Image Slideshow layer ──────────────────────────────────────────────── */
-function AmbianceSlideshow({ parallaxY }) {
-    const [current, setCurrent] = useState(0);
-
-    useEffect(() => {
-        const id = setInterval(() => {
-            setCurrent(prev => (prev + 1) % IMAGES.length);
-        }, 6000);
-        return () => clearInterval(id);
-    }, []);
-
-    return (
-        <motion.div
-            style={{ y: parallaxY }}
-            className="absolute inset-0 scale-[1.12] will-change-transform"
-        >
-            <AnimatePresence mode="sync">
-                {IMAGES.map((src, i) =>
-                    i === current ? (
-                        <motion.img
-                            key={src}
-                            src={src}
-                            alt="Mairu Bistro ambiance"
-                            className="absolute inset-0 w-full h-full object-cover object-center"
-                            initial={{ opacity: 0, scale: 1.02 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 2.8, ease: 'easeInOut' }}
-                        />
-                    ) : null
-                )}
-            </AnimatePresence>
-        </motion.div>
-    );
-}
-
 /* ─── Dot indicator ──────────────────────────────────────────────────────── */
 function SlideDots({ current, total, onChange }) {
     return (
@@ -121,7 +85,8 @@ function SlideDots({ current, total, onChange }) {
                         height: '4px',
                         background: i === current ? '#C8A96A' : 'rgba(245,241,235,0.4)',
                         border: 'none',
-                        cursor: 'none',
+                        cursor: 'pointer',
+                        touchAction: 'manipulation',
                     }}
                     aria-label={`Slide ${i + 1}`}
                 />
@@ -233,7 +198,7 @@ export default function Hero() {
                         className="eyebrow"
                         style={{ color: 'rgba(245,241,235,0.88)', letterSpacing: '0.45em', fontSize: '0.58rem' }}
                     >
-                        Est. 2008 &nbsp;·&nbsp; Garden Dining &nbsp;·&nbsp; Bangalore
+                        Est. 2023 &nbsp;·&nbsp; Garden Dining &nbsp;·&nbsp; Hyderabad
                     </span>
                     <motion.div
                         initial={{ scaleX: 0 }}
